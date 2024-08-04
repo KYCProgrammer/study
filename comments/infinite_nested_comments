@@ -1,3 +1,10 @@
+/*
+*    php 대댓글 무한정렬
+*    listing(배열, 기본키명, 부모키명, 뎁스추가여부(기본 false))로 호출
+*
+*
+*/
+
 function listing($arr, $private_key, $parent_key, $create_depth = false) {
     $order = true;
     $limit = count($arr);
