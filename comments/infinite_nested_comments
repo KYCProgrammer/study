@@ -1,0 +1,66 @@
+function listing($arr, $private_key, $parent_key, $create_depth = false) {
+    $order = true;
+    $limit = count($arr);
+    $tmp_arr = $tmp_list = $tmp_stack = [];
+    $tmp_unit = $tmp_element = null;
+    $depth = 1;
+    $now_key = 0;
+
+    $comment = $unshift_comment = [];
+
+    array_multisort(array_column($arr,$private_key),SORT_ASC,SORT_NUMERIC,$arr);
+
+    foreach ($arr as $key => $value) {
+        $tmp_list[$value[$parent_key]][$value[$private_key]] = $value;
+    }
+
+    $now_key = key($tmp_list);
+    $tmp_element = $tmp_list[$now_key];
+    unset($tmp_list[$now_key]);
+
+    while ($limit > 0) {
+
+        $now_key = key($tmp_element);
+
+        if ($create_depth == true) {
+            $tmp_element[$now_key]['depth'] = $depth;
+        }
+
+        if ($order == true) {
+            $comment[] = $tmp_element[$now_key];
+        } else {
+            $unshift_comment[] = $tmp_element[$now_key];
+        }
+
+        $tmp_unit = $tmp_element[$now_key];
+        unset($tmp_element[$now_key]);
+
+        if (true == isset($tmp_list[$tmp_unit[$private_key]])) {
+            if (count($tmp_element) > 0 ) {
+                $tmp_stack[] = $tmp_element;
+            }
+            $tmp_element = $tmp_list[$tmp_unit[$private_key]];
+            $depth++;
+            unset($tmp_list[$tmp_unit[$private_key]]);
+        }
+
+        if ((count($tmp_element) < 1) && (count($tmp_stack) > 0)) {
+            $now_key = array_key_last($tmp_stack);
+            $tmp_element = $tmp_stack[$now_key];
+            unset($tmp_stack[$now_key]);
+            $depth--;
+        }
+
+        if ((count($tmp_element) < 1) && (count($tmp_list) > 0)) {
+            $order = false;
+            $depth = 1;
+            $now_key = key($tmp_list);
+            $tmp_element = $tmp_list[$now_key];
+            unset($tmp_list[$now_key]);
+        }
+
+        $limit--;
+    }
+
+    return array_merge($unshift_comment,$comment);
+}
